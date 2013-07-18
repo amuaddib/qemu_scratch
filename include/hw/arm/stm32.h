@@ -293,6 +293,11 @@ uint32_t stm32_rcc_get_periph_freq(
 
 
 /* UART */
+#define TYPE_STM32_UART "stm32-uart"
+#define STM32_UART(obj) OBJECT_CHECK(Stm32Uart, (obj), TYPE_STM32_UART)
+//#define STM32_UART_CLASS(klass) OBJECT_CLASS_CHECK(DeviceClass, (klass), TYPE_DEVICE)
+//#define STM32_UART_GET_CLASS(obj) OBJECT_GET_CLASS(DeviceClass, (obj), TYPE_DEVICE)
+
 #define STM32_UART_COUNT 5
 
 typedef struct Stm32Uart Stm32Uart;

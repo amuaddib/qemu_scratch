@@ -23,6 +23,7 @@
 #include "hw/sysbus.h"
 #include "hw/arm/stm32.h"
 #include "sysemu/char.h"
+#include "qapi/visitor.h"
 
 
 
@@ -797,6 +798,14 @@ static const MemoryRegionOps stm32_uart_ops = {
     .endianness = DEVICE_NATIVE_ENDIAN
 };
 
+static void stm32_uart_get_baud_rate(Object *obj, Visitor *v, void *opaque,
+                                 const char *name, Error **errp)
+{
+    Stm32Uart *uart = STM32_UART(obj);
+
+    visit_type_uint32(v, &uart->bits_per_sec, name, errp);
+}
+
 
 
 
@@ -849,6 +858,11 @@ static int stm32_uart_init(SysBusDevice *dev)
           qemu_allocate_irqs(stm32_uart_clk_irq_handler, (void *)s, 1);
     stm32_rcc_set_periph_clk_irq(s->stm32_rcc, s->periph, clk_irq[0]);
 
+    object_property_add(OBJECT(dev), "baud-rate", "int",
+                        stm32_uart_get_baud_rate,
+                        NULL,
+                        NULL, NULL, NULL);
+
     stm32_uart_reset((DeviceState *)s);
 
     return 0;
@@ -873,7 +887,7 @@ static void stm32_uart_class_init(ObjectClass *klass, void *data)
 }
 
 static TypeInfo stm32_uart_info = {
-    .name  = "stm32-uart",
+    .name  = TYPE_STM32_UART,
     .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size  = sizeof(Stm32Uart),
     .class_init = stm32_uart_class_init
