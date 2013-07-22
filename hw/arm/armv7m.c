@@ -194,6 +194,9 @@ qemu_irq *armv7m_init(Object *parent, MemoryRegion *address_space_mem,
         fprintf(stderr, "Unable to find CPU definition\n");
         exit(1);
     }
+    if(parent) {
+        object_property_add_child(parent, "cpu", OBJECT(cpu), NULL);
+    }
     env = &cpu->env;
 
 #if 0
