@@ -201,7 +201,6 @@ void stm32_init(
     }
 
     DeviceState *exti_dev = qdev_create(NULL, "stm32-exti");
-    qdev_prop_set_ptr(exti_dev, "stm32_gpio", gpio_dev);
     object_property_add_child(stm32_container, "exti", OBJECT(exti_dev), NULL);
     stm32_init_periph(exti_dev, STM32_EXTI, 0x40010400, NULL);
     SysBusDevice *exti_busdev = SYS_BUS_DEVICE(exti_dev);

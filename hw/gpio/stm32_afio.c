@@ -55,6 +55,7 @@ struct Stm32Afio {
     MemoryRegion iomem;
 
     Stm32Rcc *stm32_rcc;
+    Stm32Gpio *gpio[STM32_GPIO_COUNT];
     Stm32Exti *stm32_exti;
 
     uint32_t
@@ -113,10 +114,12 @@ static void stm32_afio_AFIO_EXTICR_write(Stm32Afio *s, unsigned index,
 
         if(!init) {
             old_gpio_index = (s->AFIO_EXTICR[index] >> start) & 0xf;
-            stm32_exti_reset_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(old_gpio_index));
+            qdev_connect_gpio_out(old_gpio_dev, exti_line, NULL);
+            //stm32_exti_reset_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(old_gpio_index));
         }
         new_gpio_index = (new_value >> start) & 0xf;
-        stm32_exti_set_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(new_gpio_index));
+        qdev_connect_gpio_out(new_gpio_dev, exti_line, qdev_get_gpio_in(exti_irq_in));
+        //stm32_exti_set_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(new_gpio_index));
     }
 
     s->AFIO_EXTICR[index] = new_value;
@@ -250,9 +253,16 @@ uint32_t stm32_afio_get_periph_map(Stm32Afio *s, stm32_periph_t periph)
 
 /* DEVICE INITIALIZATION */
 
+static add_gpio_link(Stm32Afio *s, int gpio_index, const char *link_name)
+{
+    object_property_add_link(OBJECT(s), link_name, TYPE_STM32_GPIO,
+                                     (Object **)&s->gpio[gpio_index], NULL);
+}
+
 static int stm32_afio_init(SysBusDevice *dev)
 {
     Stm32Afio *s = FROM_SYSBUS(Stm32Afio, dev);
+    int i;
 
     s->stm32_rcc = (Stm32Rcc *)s->stm32_rcc_prop;
     s->stm32_exti = (Stm32Exti *)s->stm32_exti_prop;
@@ -261,12 +271,22 @@ static int stm32_afio_init(SysBusDevice *dev)
                           "afio", 0x03ff);
     sysbus_init_mmio(dev, &s->iomem);
 
+    add_gpio_link(s, 0, "gpio[a]");
+    add_gpio_link(s, 1, "gpio[b]");
+    add_gpio_link(s, 2, "gpio[c]");
+    add_gpio_link(s, 3, "gpio[d]");
+    add_gpio_link(s, 4, "gpio[e]");
+    add_gpio_link(s, 5, "gpio[f]");
+    add_gpio_link(s, 6, "gpio[g]");
+
+    object_property_add_link(OBJECT(s), "gpio[b]", TYPE_STM32_GPIO,
+                             (Object **)&s->gpio[1], NULL);
+
     return 0;
 }
 
 static Property stm32_afio_properties[] = {
     DEFINE_PROP_PTR("stm32_rcc", Stm32Afio, stm32_rcc_prop),
-    DEFINE_PROP_PTR("stm32_exti", Stm32Afio, stm32_exti_prop),
     DEFINE_PROP_END_OF_LIST()
 };
 

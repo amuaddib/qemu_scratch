@@ -29,6 +29,8 @@
 
 /* DEFINITIONS*/
 
+#define NUM_GPIO_OUT (2 * STM32_GPIO_PIN_COUNT)
+
 #define GPIOx_CRL_OFFSET 0x00
 #define GPIOx_CRH_OFFSET 0x04
 #define GPIOx_IDR_OFFSET 0x08
@@ -70,7 +72,10 @@ struct Stm32Gpio {
      * as inputs, the output IRQ state has no meaning.  Perhaps
      * the output should be updated to match the input in this case....
      */
-    qemu_irq out_irq[STM32_GPIO_PIN_COUNT];
+    /* IRQs 0 through 15 are output pins.
+     * IRQs 16 through 31 are notification IRQs that relay input GPIOs.
+     */
+    qemu_irq out_irq[NUM_GPIO_OUT];
 
     uint16_t in;
 
@@ -90,7 +95,7 @@ static void stm32_gpio_in_trigger(void *opaque, int irq, int level)
     Stm32Gpio *s = opaque;
     unsigned pin = irq;
 
-    assert(pin < STM32_GPIO_PIN_COUNT);
+    assert(irq < STM32_GPIO_PIN_COUNT);
 
     /* Only proceed if the pin has actually changed value (the trigger
      * will fire when the IRQ is set, even if it set to the same level). */
@@ -379,7 +384,7 @@ static int stm32_gpio_init(SysBusDevice *dev)
     sysbus_init_mmio(dev, &s->iomem);
 
     qdev_init_gpio_in(&dev->qdev, stm32_gpio_in_trigger, STM32_GPIO_PIN_COUNT);
-    qdev_init_gpio_out(&dev->qdev, s->out_irq, STM32_GPIO_PIN_COUNT);
+    qdev_init_gpio_out(&dev->qdev, s->out_irq, NUM_GPIO_OUT);
 
     for(pin = 0; pin < STM32_GPIO_PIN_COUNT; pin++) {
         stm32_gpio_set_exti_irq(s, pin, NULL);

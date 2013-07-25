@@ -50,17 +50,8 @@ struct Stm32Exti {
     /* Inherited */
     SysBusDevice busdev;
 
-    /* Properties */
-    /* Array of Stm32Gpio pointers (one for each GPIO).  The QEMU property
-     * library expects this to be a void pointer. */
-    void *stm32_gpio_prop;
-
     /* Private */
     MemoryRegion iomem;
-
-    /* Copy of stm32_gpio_prop correctly typed as an array of Stm32Gpio
-     * pointers. */
-    Stm32Gpio **stm32_gpio;
 
     uint32_t
         EXTI_IMR,
@@ -68,12 +59,6 @@ struct Stm32Exti {
         EXTI_FTSR,
         EXTI_SWIER,
         EXTI_PR;
-
-    /* An array of IRQs to handle interrupts when a GPIO pin changes.
-     * There are 16 IRQs, one for each GPIO pin.  Each IRQ will be registered
-     * with the appropriate GPIO based on the AFIO External Interrupt
-     * configuration register. */
-    qemu_irq *gpio_in_irqs;
 
     qemu_irq irq[EXTI_IRQ_COUNT];
 };
@@ -319,27 +304,6 @@ static void stm32_exti_reset(DeviceState *dev)
 }
 
 
-
-/* PUBLIC FUNCTIONS */
-
-void stm32_exti_set_gpio(Stm32Exti *s, unsigned exti_line, stm32_periph_t gpio)
-{
-    assert(exti_line < EXTI_LINE_COUNT);
-
-    /* Call the GPIO module with the EXTI lines IRQ handler. */
-    stm32_gpio_set_exti_irq(s->stm32_gpio[STM32_GPIO_INDEX_FROM_PERIPH(gpio)], exti_line, s->gpio_in_irqs[exti_line]);
-}
-
-void stm32_exti_reset_gpio(Stm32Exti *s, unsigned exti_line, stm32_periph_t gpio)
-{
-    assert(exti_line < EXTI_LINE_COUNT);
-
-    /* Call the GPIO module to clear its IRQ assignment. */
-    stm32_gpio_set_exti_irq(s->stm32_gpio[STM32_GPIO_INDEX_FROM_PERIPH(gpio)], exti_line, NULL);
-}
-
-
-
 /* DEVICE INITIALIZATION */
 
 static int stm32_exti_init(SysBusDevice *dev)
@@ -353,6 +317,8 @@ static int stm32_exti_init(SysBusDevice *dev)
     memory_region_init_io(&s->iomem, &stm32_exti_ops, s,
             "exti", 0x03ff);
     sysbus_init_mmio(dev, &s->iomem);
+
+    qdev_init_gpio_in(&dev->qdev, stm32_exti_gpio_in_handler, STM32_GPIO_PIN_COUNT);
 
     for(i = 0; i < EXTI_IRQ_COUNT; i++) {
         sysbus_init_irq(dev, &s->irq[i]);
