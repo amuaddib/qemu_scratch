@@ -197,6 +197,10 @@ qemu_irq *armv7m_init(Object *parent, MemoryRegion *address_space_mem,
     if(parent) {
         object_property_add_child(parent, "cpu", OBJECT(cpu), NULL);
     }
+
+    /* TODO this should be set centrally, once possible */
+    object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
+
     env = &cpu->env;
 
 #if 0

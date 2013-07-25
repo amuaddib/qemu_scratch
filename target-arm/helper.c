@@ -1272,9 +1272,6 @@ ARMCPU *cpu_arm_init(const char *cpu_model)
     env = &cpu->env;
     env->cpu_model_str = cpu_model;
 
-    /* TODO this should be set centrally, once possible */
-    object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
-
     return cpu;
 }
 
