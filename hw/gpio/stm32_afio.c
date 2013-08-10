@@ -284,6 +284,7 @@ static TypeInfo stm32_afio_info = {
     .name  = "stm32-afio",
     .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size  = sizeof(Stm32Afio),
+    .instance_init = virtio_ccw_rng_instance_init,
     .class_init = stm32_afio_class_init
 };
 

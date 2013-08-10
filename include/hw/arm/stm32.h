@@ -218,6 +218,11 @@ uint32_t stm32_afio_get_periph_map(Stm32Afio *s, int32_t periph_num);
 
 
 /* EXTI */
+#define TYPE_STM32_EXTI "stm32-exti"
+#define STM32_EXTI(obj) OBJECT_CHECK(Stm32Exti, (obj), TYPE_STM32_EXTI)
+#define STM32_EXTI_CLASS(klass) OBJECT_CLASS_CHECK(DeviceClass, (klass), TYPE_STM32_EXTI)
+#define STM32_EXTI_GET_CLASS(obj) OBJECT_GET_CLASS(DeviceClass, (obj), TYPE_STM32_EXTI)
+
 typedef struct Stm32Exti Stm32Exti;
 
 /* Assigns the specified EXTI line to the specified GPIO. */
@@ -231,6 +236,8 @@ void stm32_exti_reset_gpio(Stm32Exti *s, unsigned exti_line, stm32_periph_t gpio
 
 
 /* GPIO */
+#define TYPE_STM32_GPIO "stm32-gpio"
+
 typedef struct Stm32Gpio Stm32Gpio;
 
 #define STM32_GPIO_COUNT (STM32_GPIOG - STM32_GPIOA + 1)

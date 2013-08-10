@@ -381,7 +381,7 @@ static void stm32_exti_class_init(ObjectClass *klass, void *data)
 }
 
 static TypeInfo stm32_exti_info = {
-    .name  = "stm32-exti",
+    .name  = TYPE_STM32_EXTI,
     .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size  = sizeof(Stm32Exti),
     .class_init = stm32_exti_class_init
