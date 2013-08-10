@@ -220,6 +220,8 @@ uint32_t stm32_afio_get_periph_map(Stm32Afio *s, int32_t periph_num);
 /* EXTI */
 typedef struct Stm32Exti Stm32Exti;
 
+#define TYPE_STM32_EXTI "stm32-exti"
+
 
 
 
@@ -230,10 +232,7 @@ typedef struct Stm32Gpio Stm32Gpio;
 #define STM32_GPIO_COUNT (STM32_GPIOG - STM32_GPIOA + 1)
 #define STM32_GPIO_PIN_COUNT 16
 
-/* Sets the EXTI IRQ for the specified pin.  When a change occurs
- * on this pin, and interrupt will be generated on this IRQ.
- */
-void stm32_gpio_set_exti_irq(Stm32Gpio *s, unsigned pin, qemu_irq in_irq);
+#define TYPE_STM32_GPIO "stm32-gpio"
 
 /* GPIO pin mode */
 #define STM32_GPIO_MODE_IN 0

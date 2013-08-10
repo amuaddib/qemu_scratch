@@ -312,8 +312,6 @@ static int stm32_exti_init(SysBusDevice *dev)
 
     Stm32Exti *s = FROM_SYSBUS(Stm32Exti, dev);
 
-    s->stm32_gpio = (Stm32Gpio **)s->stm32_gpio_prop;
-
     memory_region_init_io(&s->iomem, &stm32_exti_ops, s,
             "exti", 0x03ff);
     sysbus_init_mmio(dev, &s->iomem);
@@ -323,16 +321,10 @@ static int stm32_exti_init(SysBusDevice *dev)
     }
 
     /* Create the handlers to handle GPIO input pin changes. */
-    s->gpio_in_irqs = qemu_allocate_irqs(stm32_exti_gpio_in_handler, (void *)s,
-                                        STM32_GPIO_PIN_COUNT);
+    qdev_init_gpio_in(&dev->qdev, stm32_exti_gpio_in_handler, STM32_GPIO_PIN_COUNT);
 
     return 0;
 }
-
-static Property stm32_exti_properties[] = {
-    DEFINE_PROP_PTR("stm32_gpio", Stm32Exti, stm32_gpio_prop),
-    DEFINE_PROP_END_OF_LIST()
-};
 
 static void stm32_exti_class_init(ObjectClass *klass, void *data)
 {
@@ -341,11 +333,10 @@ static void stm32_exti_class_init(ObjectClass *klass, void *data)
 
     k->init = stm32_exti_init;
     dc->reset = stm32_exti_reset;
-    dc->props = stm32_exti_properties;
 }
 
 static TypeInfo stm32_exti_info = {
-    .name  = "stm32-exti",
+    .name  = TYPE_STM32_EXTI,
     .parent = TYPE_SYS_BUS_DEVICE,
     .instance_size  = sizeof(Stm32Exti),
     .class_init = stm32_exti_class_init

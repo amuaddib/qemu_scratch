@@ -115,11 +115,15 @@ static void stm32_afio_AFIO_EXTICR_write(Stm32Afio *s, unsigned index,
 
         if(!init) {
             old_gpio_index = (s->AFIO_EXTICR[index] >> start) & 0xf;
-            qdev_connect_gpio_out(s->gpio[old_gpio_index], exti_line, NULL);
+            qdev_connect_gpio_out(DEVICE(s->gpio[old_gpio_index]),
+                                  exti_line,
+                                  NULL);
             //stm32_exti_reset_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(old_gpio_index));
         }
         new_gpio_index = (new_value >> start) & 0xf;
-        qdev_connect_gpio_out(s->gpio[new_gpio_index], exti_line, qdev_get_gpio_in(s->exti, exti_line));
+        qdev_connect_gpio_out(DEVICE(s->gpio[new_gpio_index]),
+                              exti_line,
+                              qdev_get_gpio_in(DEVICE(s->exti), exti_line));
         //stm32_exti_set_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(new_gpio_index));
     }
 
@@ -254,7 +258,7 @@ uint32_t stm32_afio_get_periph_map(Stm32Afio *s, stm32_periph_t periph)
 
 /* DEVICE INITIALIZATION */
 
-static add_gpio_link(Stm32Afio *s, int gpio_index, const char *link_name)
+static void add_gpio_link(Stm32Afio *s, int gpio_index, const char *link_name)
 {
     object_property_add_link(OBJECT(s), link_name, TYPE_STM32_GPIO,
                                      (Object **)&s->gpio[gpio_index], NULL);
@@ -266,7 +270,6 @@ static int stm32_afio_init(SysBusDevice *dev)
     Stm32Afio *s = FROM_SYSBUS(Stm32Afio, dev);
 
     s->stm32_rcc = (Stm32Rcc *)s->stm32_rcc_prop;
-    s->stm32_exti = (Stm32Exti *)s->stm32_exti_prop;
 
     memory_region_init_io(&s->iomem, &stm32_afio_ops, s,
                           "afio", 0x03ff);

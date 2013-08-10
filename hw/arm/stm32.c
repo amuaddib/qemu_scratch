@@ -201,7 +201,6 @@ void stm32_init(
     }
 
     DeviceState *exti_dev = qdev_create(NULL, "stm32-exti");
-    qdev_prop_set_ptr(exti_dev, "stm32_gpio", gpio_dev);
     object_property_add_child(stm32_container, "exti", OBJECT(exti_dev), NULL);
     stm32_init_periph(exti_dev, STM32_EXTI, 0x40010400, NULL);
     SysBusDevice *exti_busdev = SYS_BUS_DEVICE(exti_dev);
@@ -218,7 +217,14 @@ void stm32_init(
 
     DeviceState *afio_dev = qdev_create(NULL, "stm32-afio");
     qdev_prop_set_ptr(afio_dev, "stm32_rcc", rcc_dev);
-    qdev_prop_set_ptr(afio_dev, "stm32_exti", exti_dev);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(gpio_dev[0]), "gpio[a]", NULL);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(gpio_dev[1]), "gpio[b]", NULL);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(gpio_dev[2]), "gpio[c]", NULL);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(gpio_dev[3]), "gpio[d]", NULL);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(gpio_dev[4]), "gpio[e]", NULL);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(gpio_dev[5]), "gpio[f]", NULL);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(gpio_dev[6]), "gpio[g]", NULL);
+    object_property_set_link(OBJECT(afio_dev), OBJECT(exti_dev), "exti", NULL);
     object_property_add_child(stm32_container, "afio", OBJECT(afio_dev), NULL);
     stm32_init_periph(afio_dev, STM32_AFIO, 0x40010000, NULL);
 
