@@ -249,6 +249,14 @@ static void test_uart(void)
     sent_byte = read_serial_port_byte(uart2_socket_num);
     g_assert_cmpint(sent_byte, ==, 'F');
 
+    // Test half-word memory accesses.
+    // Note that half-word memory accesses will only
+    // work if
+    writew(UART2_BASE_ADDR + 0x0c, 0);
+    g_assert_cmpint(readw(UART2_BASE_ADDR + 0x0c), ==, 0);
+    writew(UART2_BASE_ADDR + 0x0c, 0x200c);
+    g_assert_cmpint(readw(UART2_BASE_ADDR + 0x0c), ==, 0x200c);
+
     // To do: test TXE interrupt, overflow, simulated delays, TC clearing
     // These get tough to do because they involve race conditions.
     // Maybe we can add a property for testing to tell the uart to pause
@@ -271,7 +279,8 @@ int main(int argc, char **argv)
 
     gchar *qemu_args = g_strdup_printf("-display none "
                                        "-machine stm32-p103 "
-                                       "-kernel %s",
+                                       "-kernel %s "
+                                       "-d guest_errors -D /tmp/qemu.log",
                                        dummy_kernel_path);
     s = qtest_start_with_serial(qemu_args, 1);
 

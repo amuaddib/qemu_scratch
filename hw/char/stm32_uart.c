@@ -760,14 +760,15 @@ static uint64_t stm32_uart_read(void *opaque, hwaddr offset,
 {
     Stm32Uart *s = (Stm32Uart *)opaque;
 
+    assert(size == 4);
+
     switch(size) {
         case HALFWORD_ACCESS_SIZE:
             return stm32_uart_readh(s, offset);
         case WORD_ACCESS_SIZE:
             return stm32_uart_readw(s, offset);
         default:
-            STM32_BAD_REG(offset, size);
-            return 0;
+            return -1;
     }
 }
 
@@ -775,6 +776,8 @@ static void stm32_uart_write(void *opaque, hwaddr offset,
                        uint64_t value, unsigned size)
 {
     Stm32Uart *s = (Stm32Uart *)opaque;
+
+    assert(size == 4);
 
     stm32_rcc_check_periph_clk((Stm32Rcc *)s->stm32_rcc, s->periph);
 
@@ -785,15 +788,16 @@ static void stm32_uart_write(void *opaque, hwaddr offset,
         case WORD_ACCESS_SIZE:
             stm32_uart_writew(s, offset, value);
             break;
-        default:
-            STM32_BAD_REG(offset, size);
-            break;
     }
 }
 
 static const MemoryRegionOps stm32_uart_ops = {
     .read = stm32_uart_read,
     .write = stm32_uart_write,
+    .valid.min_access_size = 2,
+    .valid.max_access_size = 4,
+    .impl.min_access_size = 4,
+    .impl.max_access_size = 4,
     .endianness = DEVICE_NATIVE_ENDIAN
 };
 

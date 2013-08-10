@@ -17,6 +17,7 @@
 #include "exec/address-spaces.h"
 #include "exec/ioport.h"
 #include "qemu/bitops.h"
+#include "qemu/log.h"
 #include "sysemu/kvm.h"
 #include <assert.h>
 
@@ -851,6 +852,12 @@ static uint64_t memory_region_dispatch_read1(MemoryRegion *mr,
     uint64_t data = 0;
 
     if (!memory_region_access_valid(mr, addr, size, false)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "Invalid read of size %d at offset %llx"
+                      " in memory region %s\n",
+                      size,
+                      (unsigned long long)addr,
+                      mr->name);
         return -1U; /* FIXME: better signalling */
     }
 
@@ -902,6 +909,12 @@ static void memory_region_dispatch_write(MemoryRegion *mr,
                                          unsigned size)
 {
     if (!memory_region_access_valid(mr, addr, size, true)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "Invalid write of size %d at offset %llx"
+                      " in memory region %s\n",
+                      size,
+                      (unsigned long long)addr,
+                      mr->name);
         return; /* FIXME: better signalling */
     }
 
