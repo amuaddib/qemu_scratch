@@ -118,13 +118,11 @@ static void stm32_afio_AFIO_EXTICR_write(Stm32Afio *s, unsigned index,
             sysbus_connect_irq(SYS_BUS_DEVICE(s->gpio[old_gpio_index]),
                                exti_line,
                                NULL);
-            //stm32_exti_reset_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(old_gpio_index));
         }
         new_gpio_index = (new_value >> start) & 0xf;
         sysbus_connect_irq(SYS_BUS_DEVICE(s->gpio[new_gpio_index]),
                            exti_line,
                            qdev_get_gpio_in(DEVICE(s->exti), exti_line));
-        //stm32_exti_set_gpio(s->stm32_exti, exti_line, STM32_GPIO_PERIPH_FROM_INDEX(new_gpio_index));
     }
 
     s->AFIO_EXTICR[index] = new_value;
