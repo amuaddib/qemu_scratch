@@ -220,12 +220,6 @@ uint32_t stm32_afio_get_periph_map(Stm32Afio *s, int32_t periph_num);
 /* EXTI */
 typedef struct Stm32Exti Stm32Exti;
 
-/* Assigns the specified EXTI line to the specified GPIO. */
-void stm32_exti_set_gpio(Stm32Exti *s, unsigned exti_line, stm32_periph_t gpio);
-
-/* Unassigns the specified EXTI line from the specified GPIO. */
-void stm32_exti_reset_gpio(Stm32Exti *s, unsigned exti_line, stm32_periph_t gpio);
-
 
 
 
