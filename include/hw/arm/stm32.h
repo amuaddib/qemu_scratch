@@ -95,7 +95,7 @@ typedef int32_t stm32_periph_t;
 #define STM32_GPIOE 5
 #define STM32_GPIOF 6
 #define STM32_GPIOG 7
-#define STM32_AFIO 8
+#define STM32_AFIO_PERIPH 8
 #define STM32_UART1 9
 #define STM32_UART2 10
 #define STM32_UART3 11
@@ -196,6 +196,9 @@ const char *stm32_periph_name(stm32_periph_t periph);
 
 
 /* AFIO */
+#define TYPE_STM32_AFIO "stm32-afio"
+#define STM32_AFIO(obj) OBJECT_CHECK(Stm32Afio, (obj), TYPE_STM32_AFIO)
+
 typedef struct Stm32Afio Stm32Afio;
 
 /* AFIO Peripheral Mapping */
