@@ -853,11 +853,12 @@ static uint64_t memory_region_dispatch_read1(MemoryRegion *mr,
 
     if (!memory_region_access_valid(mr, addr, size, false)) {
         qemu_log_mask(LOG_GUEST_ERROR,
-                      "Invalid read of size %d at offset %llx"
-                      " in memory region %s\n",
-                      size,
+                      "Invalid memory read: offset=0x%llx size=%d"
+                      " (memory region=%s 0x%llx)\n",
                       (unsigned long long)addr,
-                      mr->name);
+                      size,
+                      mr->name,
+                      (unsigned long long)mr->addr);
         return -1U; /* FIXME: better signalling */
     }
 
@@ -910,11 +911,12 @@ static void memory_region_dispatch_write(MemoryRegion *mr,
 {
     if (!memory_region_access_valid(mr, addr, size, true)) {
         qemu_log_mask(LOG_GUEST_ERROR,
-                      "Invalid write of size %d at offset %llx"
-                      " in memory region %s\n",
-                      size,
+                      "Invalid memory write: offset=0x%llx size=%d"
+                      " (memory region=%s 0x%llx)\n",
                       (unsigned long long)addr,
-                      mr->name);
+                      size,
+                      mr->name,
+                      (unsigned long long)mr->addr);
         return; /* FIXME: better signalling */
     }
 
